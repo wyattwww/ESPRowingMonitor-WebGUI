@@ -14,8 +14,9 @@ export class DataService {
     private activityStartStrokeCount: number = 0;
 
     private batteryLevel: number = 0;
-    private bleServiceFlag: BleServiceFlag = BleServiceFlag.CpsService;
+    private bleServiceFlag: BleServiceFlag = BleServiceFlag.FtmsService;
 
+    private lastCalories: number = 0;
     private lastDistance: number = 0;
     private lastRevCount: number = 0;
     private lastRevTime: number = 0;
@@ -42,6 +43,7 @@ export class DataService {
                     batteryLevel: rowerDataDto.batteryLevel,
                     dragFactor: rowerDataDto.dragFactor,
                     strokeCount: rowerDataDto.strokeCount - this.activityStartStrokeCount,
+                    totalCalories: rowerDataDto.totalCalories,
                     handleForces: rowerDataDto.handleForces,
                     peakForce: Math.max(...rowerDataDto.handleForces),
                     strokeRate:
@@ -68,6 +70,7 @@ export class DataService {
                 this.lastStrokeTime = rowerDataDto.strokeTime;
                 this.lastStrokeCount = rowerDataDto.strokeCount;
                 this.lastDistance = rowerDataDto.distance;
+                this.lastCalories = rowerDataDto.totalCalories;
                 this.batteryLevel = rowerDataDto.batteryLevel;
                 this.bleServiceFlag = rowerDataDto.bleServiceFlag;
                 this.logLevel = rowerDataDto.logLevel;
@@ -101,6 +104,7 @@ export class DataService {
             logLevel: this.logLevel,
             dragFactor: 0,
             strokeCount: this.lastStrokeCount,
+            totalCalories: this.lastCalories,
             handleForces: [],
             revTime: this.lastRevTime,
             strokeTime: this.lastStrokeTime,

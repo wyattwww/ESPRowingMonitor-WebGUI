@@ -65,9 +65,9 @@ export class AppComponent {
 
         if ($event === "bluetooth") {
             this.webSocketService.changeBleServiceType(
-                this.dataService.getBleServiceFlag() === BleServiceFlag.CpsService
+                this.dataService.getBleServiceFlag() === BleServiceFlag.FtmsService
                     ? BleServiceFlag.CscService
-                    : BleServiceFlag.CpsService
+                    : BleServiceFlag.FtmsService
             );
         }
     }

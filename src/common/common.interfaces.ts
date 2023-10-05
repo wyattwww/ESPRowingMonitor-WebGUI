@@ -25,6 +25,7 @@ export interface IRowerDataDto {
     strokeCount: number;
     avgStrokePower: number;
     dragFactor: number;
+    totalCalories: number;
     handleForces: Array<number>;
 }
 export interface IRowerData extends Omit<IRowerDataDto, "revTime" | "strokeTime"> {
@@ -37,6 +38,7 @@ export interface IRowerData extends Omit<IRowerDataDto, "revTime" | "strokeTime"
 export enum BleServiceFlag {
     CpsService,
     CscService,
+    FtmsService,
 }
 
 export class Config {

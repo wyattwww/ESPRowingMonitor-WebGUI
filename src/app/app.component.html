@@ -1,7 +1,7 @@
 <app-settings-bar
     [connectionStatus]="(isConnected$ | async) ?? false"
     [batteryLevel]="(rowingData$ | async)?.batteryLevel ?? 0"
-    [bleServiceType]="(rowingData$ | async)?.bleServiceFlag ?? BleServiceFlag.CpsService"
+    [bleServiceType]="(rowingData$ | async)?.bleServiceFlag ?? BleServiceFlag.FtmsService"
     (buttonClicked)="handleAction($event)"
 ></app-settings-bar>
 <div class="dashboard">
@@ -36,6 +36,11 @@
     <app-metric
         title="Drag Factor"
         [value]="(rowingData$ | async)?.dragFactor ?? 0 | roundNumber"
+    ></app-metric>
+    <app-metric
+        title="Energy"
+        [value]="(rowingData$ | async)?.totalCalories ?? 0"
+        unit="kcal"
     ></app-metric>
     <app-metric
         title="Drive"

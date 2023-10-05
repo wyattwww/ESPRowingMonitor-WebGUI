@@ -15,7 +15,7 @@ export class SettingsBarComponent {
     BleServiceFlag: typeof BleServiceFlag = BleServiceFlag;
 
     @Input() batteryLevel: number = 100;
-    @Input() bleServiceType: BleServiceFlag = BleServiceFlag.CpsService;
+    @Input() bleServiceType: BleServiceFlag = BleServiceFlag.FtmsService;
 
     @Output() readonly buttonClicked: EventEmitter<ButtonClickedTargets> = new EventEmitter();
 
