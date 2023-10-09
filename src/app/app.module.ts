@@ -1,9 +1,12 @@
 import { HTTP_INTERCEPTORS } from "@angular/common/http";
 import { NgModule } from "@angular/core";
+import { MatSnackBar } from "@angular/material/snack-bar";
 import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
+import { BrowserWebBluetooth, WebBluetoothModule } from "@manekinekko/angular-web-bluetooth";
 
 import { CoreModule } from "../common/core.module";
+import { AntHeartRateService } from "../common/services/ant-heart-rate.service";
 import { ErrorInterceptor } from "../common/services/error.interceptor.service";
 import { SnackBarConfirmComponent } from "../common/snack-bar-confirm/snack-bar-confirm.component";
 
@@ -12,6 +15,16 @@ import { ForceCurveComponent } from "./force-curve/force-curve.component";
 import { MetricComponent } from "./metric/metric.component";
 import { SettingsBarComponent } from "./settings-bar/settings-bar.component";
 import { SettingsDialogComponent } from "./settings-dialog/settings-dialog.component";
+
+const webBluetooth = [];
+
+if (isSecureContext) {
+    webBluetooth.push(
+        WebBluetoothModule.forRoot({
+            enableTracing: true, // or false, this will enable logs in the browser's console
+        }),
+    );
+}
 
 @NgModule({
     declarations: [
@@ -22,8 +35,39 @@ import { SettingsDialogComponent } from "./settings-dialog/settings-dialog.compo
         ForceCurveComponent,
         SettingsDialogComponent,
     ],
-    imports: [BrowserModule, BrowserAnimationsModule, CoreModule],
-    providers: [{ provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }],
+    imports: [BrowserModule, BrowserAnimationsModule, CoreModule, webBluetooth],
+    providers: [
+        { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+        {
+            provide: BrowserWebBluetooth,
+            useFactory: (): BrowserWebBluetooth => {
+                if (isSecureContext) {
+                    return new BrowserWebBluetooth();
+                }
+
+                return {
+                    requestDevice: (): Promise<BluetoothDevice> => {
+                        throw Error("Bluetooth API is not available");
+                    },
+                } as unknown as BrowserWebBluetooth;
+            },
+        },
+        {
+            provide: AntHeartRateService,
+            useFactory: (snack: MatSnackBar): AntHeartRateService => {
+                if (isSecureContext) {
+                    return new AntHeartRateService(snack);
+                }
+
+                return {
+                    discover: (): Promise<void> => {
+                        throw Error("WebUSB API is not available");
+                    },
+                } as unknown as AntHeartRateService;
+            },
+            deps: [MatSnackBar],
+        },
+    ],
     bootstrap: [AppComponent],
 })
 export class AppModule {}

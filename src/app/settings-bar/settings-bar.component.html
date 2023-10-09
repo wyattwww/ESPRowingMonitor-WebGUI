@@ -1,4 +1,7 @@
-<mat-toolbar color="primary">
+<mat-toolbar
+    color="primary"
+    [ngClass]="{ 'show-heart-rate-monitor': (configManager.config$ | async)?.heartRateMonitor !== 'off' }"
+>
     <div>
         <mat-icon>{{ batteryLevel | batteryLevel }}</mat-icon>
     </div>
@@ -14,12 +17,19 @@
     <button (click)="click('download')" mat-icon-button>
         <mat-icon>download</mat-icon>
     </button>
+    <button
+        *ngIf="(configManager.config$ | async)?.heartRateMonitor !== 'off'"
+        (click)="click('heartRate')"
+        mat-icon-button
+    >
+        <mat-icon>favorite</mat-icon>
+    </button>
     <div>
         <button (click)="click('bluetooth')" mat-icon-button>
             <mat-icon>bluetooth</mat-icon>
         </button>
         <span>{{
-            bleServiceType === BleServiceFlag.FtmsService ? "Rowing Machine" : (BleServiceFlag.CpsService ? "Cycling Power" : "Cycling Speed and Cadence")
+            bleServiceType === BleServiceFlag.FtmsService ? "Rowing Machine" : (bleServiceType === BleServiceFlag.CpsService ? "Cycling Power" : "Cycling Speed and Cadence")
         }}</span>
     </div>
     <span class="time-of-day">

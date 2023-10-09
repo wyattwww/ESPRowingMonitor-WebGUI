@@ -19,4 +19,15 @@ mat-toolbar {
     > .title {
         justify-self: self-end;
     }
+
+    &.show-heart-rate-monitor {
+        grid-template-columns: repeat(7, max-content) 1fr max-content;
+    }
+}
+
+@media screen and (max-height: 400px) {
+    .mat-toolbar-row,
+    .mat-toolbar-single-row {
+        height: 48px;
+    }
 }

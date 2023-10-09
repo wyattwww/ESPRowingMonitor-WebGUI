@@ -1,9 +1,10 @@
 import { Injectable } from "@angular/core";
-import { map, merge, Observable, shareReplay, Subject } from "rxjs";
+import { map, merge, Observable, shareReplay, Subject, withLatestFrom } from "rxjs";
 
-import { BleServiceFlag, IRowerData, IRowerDataDto, LogLevel } from "../common.interfaces";
+import { BleServiceFlag, IHeartRate, IRowerData, IRowerDataDto, LogLevel } from "../common.interfaces";
 
 import { DataRecorderService } from "./data-recorder.service";
+import { HeartRateService } from "./heart-rate.service";
 import { WebSocketService } from "./websocket.service";
 
 @Injectable({
@@ -16,8 +17,10 @@ export class DataService {
     private batteryLevel: number = 0;
     private bleServiceFlag: BleServiceFlag = BleServiceFlag.FtmsService;
 
+    private heartRateData$: Observable<IHeartRate | undefined>;
     private lastCalories: number = 0;
     private lastDistance: number = 0;
+    private lastElapsedTime: number = 0;
     private lastRevCount: number = 0;
     private lastRevTime: number = 0;
     private lastStrokeCount: number = 0;
@@ -29,9 +32,16 @@ export class DataService {
 
     private rowingData$: Observable<IRowerData>;
 
-    constructor(private webSocketService: WebSocketService, private dataRecorder: DataRecorderService) {
+    constructor(
+        private webSocketService: WebSocketService,
+        private dataRecorder: DataRecorderService,
+        private heartRateService: HeartRateService,
+    ) {
+        this.heartRateData$ = this.heartRateService.streamHeartRate();
+
         this.rowingData$ = merge(this.webSocketService.data(), this.resetSubject).pipe(
-            map((rowerDataDto: IRowerDataDto): IRowerData => {
+            withLatestFrom(this.heartRateData$),
+            map(([rowerDataDto, heartRateData]: [IRowerDataDto, IHeartRate | undefined]): IRowerData => {
                 const distance = Math.round(rowerDataDto.distance);
                 const rowerData: IRowerData = {
                     bleServiceFlag: rowerDataDto.bleServiceFlag,
@@ -39,6 +49,7 @@ export class DataService {
                     driveDuration: rowerDataDto.driveDuration / 1e6,
                     recoveryDuration: rowerDataDto.recoveryDuration / 1e6,
                     avgStrokePower: rowerDataDto.avgStrokePower,
+                    elapsedTime: rowerDataDto.elapsedTime,
                     distance: rowerDataDto.distance - this.activityStartDistance,
                     batteryLevel: rowerDataDto.batteryLevel,
                     dragFactor: rowerDataDto.dragFactor,
@@ -62,7 +73,10 @@ export class DataService {
                               (rowerDataDto.strokeCount - this.lastStrokeCount),
                 };
 
-                this.dataRecorder.add(rowerData);
+                this.dataRecorder.add({
+                    ...rowerData,
+                    heartRate: heartRateData?.contactDetected ? heartRateData : undefined,
+                });
                 this.dataRecorder.addRaw(rowerDataDto);
 
                 this.lastRevTime = rowerDataDto.revTime;
@@ -70,6 +84,7 @@ export class DataService {
                 this.lastStrokeTime = rowerDataDto.strokeTime;
                 this.lastStrokeCount = rowerDataDto.strokeCount;
                 this.lastDistance = rowerDataDto.distance;
+                this.lastElapsedTime = rowerDataDto.elapsedTime;
                 this.lastCalories = rowerDataDto.totalCalories;
                 this.batteryLevel = rowerDataDto.batteryLevel;
                 this.bleServiceFlag = rowerDataDto.bleServiceFlag;
@@ -77,7 +92,7 @@ export class DataService {
 
                 return rowerData;
             }),
-            shareReplay()
+            shareReplay(),
         );
     }
 
@@ -89,6 +104,10 @@ export class DataService {
         return this.logLevel;
     }
 
+    heartRateData(): Observable<IHeartRate | undefined> {
+        return this.heartRateData$;
+    }
+
     reset(): void {
         this.activityStartDistance = this.lastDistance;
         this.activityStartStrokeCount = this.lastStrokeCount;
@@ -98,6 +117,7 @@ export class DataService {
             driveDuration: 0,
             recoveryDuration: 0,
             avgStrokePower: 0,
+            elapsedTime: this.lastElapsedTime,
             distance: this.lastDistance,
             batteryLevel: this.batteryLevel,
             bleServiceFlag: this.bleServiceFlag,
