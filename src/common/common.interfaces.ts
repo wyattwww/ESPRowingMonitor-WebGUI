@@ -21,11 +21,14 @@ export interface IRowerDataDto {
     batteryLevel: number;
     bleServiceFlag: BleServiceFlag;
     logLevel: LogLevel;
+    flywheelInertia: number;
+    magicNumber: number;
     revTime: number;
     distance: number;
     strokeTime: number;
     strokeCount: number;
     avgStrokePower: number;
+    autoDragFactor: AutoDragFactor;
     dragFactor: number;
     totalCalories: number;
     elapsedTime: number;
@@ -94,6 +97,10 @@ export type IConfig = Config;
 export enum PSCOpCodes {
     SetLogLevel = 17,
     ChangeBleService = 18,
+    ChangeInertia = 19,
+    ChangeAutoDragFactor = 20,
+    ChangeDragFactor = 21,
+    ChangeMagicNumber = 22,
 }
 
 export enum LogLevel {
@@ -106,4 +113,9 @@ export enum LogLevel {
     Notice = 4,
     Trace = 5,
     Verbose = 6,
+}
+
+export enum AutoDragFactor {
+    Disabled = 0,
+    Enabled = 1,
 }

@@ -1,7 +1,14 @@
 import { Injectable } from "@angular/core";
 import { map, merge, Observable, shareReplay, Subject, withLatestFrom } from "rxjs";
 
-import { BleServiceFlag, IHeartRate, IRowerData, IRowerDataDto, LogLevel } from "../common.interfaces";
+import {
+    AutoDragFactor,
+    BleServiceFlag,
+    IHeartRate,
+    IRowerData,
+    IRowerDataDto,
+    LogLevel,
+} from "../common.interfaces";
 
 import { DataRecorderService } from "./data-recorder.service";
 import { HeartRateService } from "./heart-rate.service";
@@ -14,8 +21,11 @@ export class DataService {
     private activityStartDistance: number = 0;
     private activityStartStrokeCount: number = 0;
 
+    private autoDragFactor: AutoDragFactor = AutoDragFactor.Enabled;
     private batteryLevel: number = 0;
     private bleServiceFlag: BleServiceFlag = BleServiceFlag.FtmsService;
+    private dragFactor: number = 101.0;
+    private flywheelInertia: number = 0.125;
 
     private heartRateData$: Observable<IHeartRate | undefined>;
     private lastCalories: number = 0;
@@ -27,6 +37,8 @@ export class DataService {
     private lastStrokeTime: number = 0;
 
     private logLevel: LogLevel = LogLevel.Trace;
+
+    private magicNumber: number = 2.50;
 
     private resetSubject: Subject<IRowerDataDto> = new Subject();
 
@@ -46,6 +58,8 @@ export class DataService {
                 const rowerData: IRowerData = {
                     bleServiceFlag: rowerDataDto.bleServiceFlag,
                     logLevel: rowerDataDto.logLevel,
+                    flywheelInertia: rowerDataDto.flywheelInertia,
+                    magicNumber: rowerDataDto.magicNumber,
                     driveDuration: rowerDataDto.driveDuration / 1e6,
                     recoveryDuration: rowerDataDto.recoveryDuration / 1e6,
                     avgStrokePower: rowerDataDto.avgStrokePower,
@@ -53,6 +67,7 @@ export class DataService {
                     distance: rowerDataDto.distance - this.activityStartDistance,
                     batteryLevel: rowerDataDto.batteryLevel,
                     dragFactor: rowerDataDto.dragFactor,
+                    autoDragFactor: rowerDataDto.autoDragFactor,
                     strokeCount: rowerDataDto.strokeCount - this.activityStartStrokeCount,
                     totalCalories: rowerDataDto.totalCalories,
                     handleForces: rowerDataDto.handleForces,
@@ -89,6 +104,10 @@ export class DataService {
                 this.batteryLevel = rowerDataDto.batteryLevel;
                 this.bleServiceFlag = rowerDataDto.bleServiceFlag;
                 this.logLevel = rowerDataDto.logLevel;
+                this.flywheelInertia = rowerDataDto.flywheelInertia;
+                this.magicNumber = rowerDataDto.magicNumber;
+                this.autoDragFactor = rowerDataDto.autoDragFactor;
+                this.dragFactor = rowerDataDto.dragFactor;
 
                 return rowerData;
             }),
@@ -96,12 +115,28 @@ export class DataService {
         );
     }
 
+    getAutoDragFactor(): AutoDragFactor {
+        return this.autoDragFactor;
+    }
+
     getBleServiceFlag(): BleServiceFlag {
         return this.bleServiceFlag;
     }
 
+    getDragFactor(): number {
+        return this.dragFactor;
+    }
+
+    getFlywheelInertia(): number {
+        return this.flywheelInertia;
+    }
+
     getLogLevel(): LogLevel {
         return this.logLevel;
+    }
+
+    getMagicNumber(): number {
+        return this.magicNumber;
     }
 
     heartRateData(): Observable<IHeartRate | undefined> {
@@ -122,7 +157,10 @@ export class DataService {
             batteryLevel: this.batteryLevel,
             bleServiceFlag: this.bleServiceFlag,
             logLevel: this.logLevel,
-            dragFactor: 0,
+            flywheelInertia: this.flywheelInertia,
+            magicNumber: this.magicNumber,
+            autoDragFactor: this.autoDragFactor,
+            dragFactor: this.dragFactor,
             strokeCount: this.lastStrokeCount,
             totalCalories: this.lastCalories,
             handleForces: [],

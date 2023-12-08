@@ -26,7 +26,7 @@
             <mat-error *ngIf="(settingsFormErrors$ | async)?.heartRateMonitor?.required"
                 >Heart rate monitor mode is required</mat-error
             >
-            <mat-error *ngIf="(settingsFormErrors$ | async)?.heartRateMonitor?.patter"
+            <mat-error *ngIf="(settingsFormErrors$ | async)?.heartRateMonitor?.pattern"
                 >Invalid value</mat-error
             >
         </mat-form-field>
@@ -45,6 +45,60 @@
                     (settingsFormErrors$ | async)?.logLevel?.min ||
                     (settingsFormErrors$ | async)?.logLevel?.max
                 "
+                >Invalid value</mat-error
+            >
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>Flywheel Inertia</mat-label>
+            <input matInput formControlName="flywheelInertia" name="flywheelInertia" required />
+            <mat-error *ngIf="(settingsFormErrors$ | async)?.flywheelInertia?.required"
+                >Flywheel Inertia is required</mat-error
+            >
+            <mat-error *ngIf="(settingsFormErrors$ | async)?.flywheelInertia?.min || 
+                              (settingsFormErrors$ | async)?.flywheelInertia?.max
+            "
+                >Invalid value</mat-error
+            >
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>Auto Drag Factor</mat-label>
+            <mat-select name="autoDragFactor" placeholder="Enable auto drag factor" formControlName="autoDragFactor" required>
+                <mat-option *ngFor="let autoDrag of AutoDragFactor | enumToArray" [value]="autoDrag.key">{{
+                    autoDrag.value
+                }}</mat-option>
+            </mat-select>
+            <mat-error *ngIf="(settingsFormErrors$ | async)?.autoDragFactor?.required"
+                >Log level is required</mat-error
+            >
+            <mat-error
+                *ngIf="
+                    (settingsFormErrors$ | async)?.autoDragFactor?.min ||
+                    (settingsFormErrors$ | async)?.autoDragFactor?.max
+                "
+                >Invalid value</mat-error
+            >
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>Drag Factor</mat-label>
+            <input matInput formControlName="dragFactor" name="dragFactor" required />
+            <mat-error *ngIf="(settingsFormErrors$ | async)?.dragFactor?.required"
+                >Drag Factor is required</mat-error
+            >
+            <mat-error *ngIf="(settingsFormErrors$ | async)?.dragFactor?.min || 
+                              (settingsFormErrors$ | async)?.dragFactor?.max
+            "
+                >Invalid value</mat-error
+            >
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>Magic Number</mat-label>
+            <input matInput formControlName="magicNumber" name="magicNumber" required />
+            <mat-error *ngIf="(settingsFormErrors$ | async)?.magicNumber?.required"
+                >Magic Number is required</mat-error
+            >
+            <mat-error *ngIf="(settingsFormErrors$ | async)?.magicNumber?.min || 
+                              (settingsFormErrors$ | async)?.magicNumber?.max
+            "
                 >Invalid value</mat-error
             >
         </mat-form-field>

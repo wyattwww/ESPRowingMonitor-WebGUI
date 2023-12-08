@@ -2,7 +2,14 @@ import { Injectable } from "@angular/core";
 import { filter, map, merge, Observable, retry, shareReplay, startWith, Subject, switchMap } from "rxjs";
 import { webSocket, WebSocketSubject } from "rxjs/webSocket";
 
-import { BleServiceFlag, Config, IRowerDataDto, LogLevel, PSCOpCodes } from "../common.interfaces";
+import {
+    AutoDragFactor,
+    BleServiceFlag,
+    Config,
+    IRowerDataDto,
+    LogLevel,
+    PSCOpCodes,
+} from "../common.interfaces";
 
 import { ConfigManagerService } from "./config-manager.service";
 
@@ -48,6 +55,15 @@ export class WebSocketService {
         );
     }
 
+    changeAutoDragFactor(autoDragFactor: AutoDragFactor): void {
+        if (this.webSocketSubject?.closed === false) {
+            this.webSocketSubject?.next([
+                PSCOpCodes.ChangeAutoDragFactor,
+                autoDragFactor,
+            ] as unknown as IRowerDataDto);
+        }
+    }
+
     changeBleServiceType(bleService: BleServiceFlag): void {
         if (this.webSocketSubject?.closed === false) {
             this.webSocketSubject?.next([
@@ -57,9 +73,27 @@ export class WebSocketService {
         }
     }
 
+    changeDragFactor(dragF: number): void {
+        if (this.webSocketSubject?.closed === false) {
+            this.webSocketSubject?.next([PSCOpCodes.ChangeDragFactor, dragF] as unknown as IRowerDataDto);
+        }
+    }
+
+    changeFlywheelInertia(inertia: number): void {
+        if (this.webSocketSubject?.closed === false) {
+            this.webSocketSubject?.next([PSCOpCodes.ChangeInertia, inertia] as unknown as IRowerDataDto);
+        }
+    }
+
     changeLogLevel(logLevel: LogLevel): void {
         if (this.webSocketSubject?.closed === false) {
             this.webSocketSubject?.next([PSCOpCodes.SetLogLevel, logLevel] as unknown as IRowerDataDto);
+        }
+    }
+
+    changeMagicNumber(magicNum: number): void {
+        if (this.webSocketSubject?.closed === false) {
+            this.webSocketSubject?.next([PSCOpCodes.ChangeMagicNumber, magicNum] as unknown as IRowerDataDto);
         }
     }
 
