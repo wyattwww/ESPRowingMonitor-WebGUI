@@ -25,6 +25,13 @@ mat-toolbar {
     }
 }
 
+@media (max-width: 959px) {
+    .mat-toolbar-row,
+    .mat-toolbar-single-row {
+        height: 48px;
+    }
+}
+
 @media screen and (max-height: 400px) {
     .mat-toolbar-row,
     .mat-toolbar-single-row {

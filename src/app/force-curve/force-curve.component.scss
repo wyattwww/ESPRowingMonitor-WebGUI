@@ -4,4 +4,8 @@ mat-card {
 
 canvas {
     padding: 24px;
+
+    @media (max-width: 959px) {
+        padding: 10px;
+    }
 }

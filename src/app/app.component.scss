@@ -20,11 +20,16 @@
     gap: 10px;
     height: calc(100% - 80px);
     margin: 10px;
+
+    @media (max-width: 959px) {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
 }
 
 app-metric[icon="favorite"],
 app-metric[title="Drive"],
-app-metric[title="Recovery"] {
+app-metric[title="Recovery"],
+app-metric[title="Total Strokes"] {
     @media (max-width: 959px) {
         display: none;
     }
